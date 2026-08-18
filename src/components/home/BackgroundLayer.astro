@@ -1,0 +1,31 @@
+<div class="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+  <div class="bg-glow bg-glow--a"></div>
+  <div class="bg-glow bg-glow--b"></div>
+  <canvas id="bg-particles" class="absolute inset-0 h-full w-full opacity-45"></canvas>
+  <div
+    class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,var(--color-base)_100%)]"
+  >
+  </div>
+</div>
+
+<style>
+  .bg-glow {
+    position: absolute;
+    width: 60vmax;
+    height: 60vmax;
+    border-radius: 9999px;
+    filter: blur(120px);
+    opacity: 0.16;
+  }
+  .bg-glow--a {
+    background: var(--color-accent);
+    top: -20vmax;
+    left: -10vmax;
+  }
+  .bg-glow--b {
+    background: #3b82f6;
+    bottom: -25vmax;
+    right: -15vmax;
+    opacity: 0.1;
+  }
+</style>
