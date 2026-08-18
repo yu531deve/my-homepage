@@ -25,12 +25,12 @@ Portfolio site under construction.
 
 ## コマンド
 
-| コマンド | 内容 |
-| :--- | :--- |
-| `npm install` | 依存パッケージのインストール |
-| `npm run dev` | 開発サーバー起動（`localhost:4321`） |
-| `npm run build` | 本番ビルド（`./dist/`） |
-| `npm run preview` | ビルド結果のプレビュー |
-| `npm run astro ...` | Astro CLI（`astro add` / `astro check` 等） |
-| `npm run format` | Prettier で整形 |
-| `npm run format:check` | Prettier の整形チェックのみ |
+| コマンド               | 内容                                        |
+| :--------------------- | :------------------------------------------ |
+| `npm install`          | 依存パッケージのインストール                |
+| `npm run dev`          | 開発サーバー起動（`localhost:4321`）        |
+| `npm run build`        | 本番ビルド（`./dist/`）                     |
+| `npm run preview`      | ビルド結果のプレビュー                      |
+| `npm run astro ...`    | Astro CLI（`astro add` / `astro check` 等） |
+| `npm run format`       | Prettier で整形                             |
+| `npm run format:check` | Prettier の整形チェックのみ                 |
