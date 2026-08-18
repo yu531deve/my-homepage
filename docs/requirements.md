@@ -41,8 +41,8 @@
 | アニメーション | **GSAP + ScrollTrigger** | スクロール連動演出の業界標準。Lenis でスムーススクロール併用を検討 |
 | スタイリング | Tailwind CSS | 速く書ける。デザイントークンを集約 |
 | コンテンツ | Markdown (Content Collections) | blog / works を frontmatter 付き .md で管理 |
-| ホスティング | Vercel または Cloudflare Pages | 無料枠・独自ドメイン対応 |
-| フォーム | 外部サービス(Formspree 等)または mailto | サーバー不要で完結させる |
+| ホスティング | **Cloudflare Pages** | 無料枠が寛大。まず *.pages.dev で公開、独自ドメインは後回し |
+| フォーム | なし(SNS/GitHubリンクのみ) | GitHub / X (@Yudai531deve) へのリンクで足りる |
 
 ## 5. 非機能要件
 
@@ -64,9 +64,15 @@
 4. レスポンシブ・reduced-motion・SEO 仕上げ
 5. デプロイ・独自ドメイン設定
 
-## 8. 未決事項
+## 8. 決定事項(2026-08-18〜19 確定)
 
-- サイト名・独自ドメイン
-- デザインの方向性(配色・フォント・トーン)
-- 掲載する作品の初期ラインナップ
-- お問い合わせフォームのサービス選定
+- **サイト名**: Yudai Harada(本名ローマ字)
+- **デザイン**: ダーク基調×大胆モーション(lusion.co 系)、アクセントはエメラルド/ネオングリーン(`#10b981`〜`#34d399` からトークン化)、フォントは Inter / Noto Sans JP
+- **作品初期ラインナップ**: Diary(自作入試数学問題サイト)/ PTCG Card Explorer / PTCG AI Arena / このサイト自体(完成後追加)— 詳細は issue #2
+- **ブログタグ初期案**: `tech` `learning` `diary` `devlog`
+- **コンタクト**: GitHub (yu531deve)・X (@Yudai531deve) リンクのみ。`/contact` はフッター統合を検討
+- **about コンテンツ**: issue #3 のコメント参照
+
+### 残タスク(実装前ヒアリング)
+- PTCG Card Explorer の説明文 / PTCG AI Arena の担当・結果
+- 独自ドメイン名(後回しで確定)
