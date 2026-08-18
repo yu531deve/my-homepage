@@ -1,18 +1,29 @@
 ---
+import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-export function getStaticPaths() {
-  return [{ params: { slug: "hello-world" } }, { params: { slug: "astro-setup" } }];
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
 }
 
-const { slug } = Astro.params;
+const { post } = Astro.props;
+const { Content } = await render(post);
 ---
 
-<BaseLayout title={slug ?? ""}>
+<BaseLayout title={post.data.title} description={post.data.summary}>
   <div class="mx-auto max-w-3xl px-6 py-24">
-    <h1 class="text-fg text-4xl font-bold tracking-tight">{slug}</h1>
-    <p class="text-fg-muted mt-4">記事本文をここに掲載する。</p>
+    <a href="/blog" class="text-fg-subtle hover:text-accent text-sm">← Blog</a>
+
+    <header class="mt-6">
+      {post.data.draft && <p class="text-accent-dim text-xs">DRAFT</p>}
+      <h1 class="text-fg text-4xl font-bold tracking-tight">{post.data.title}</h1>
+    </header>
+
+    <hr class="border-border my-10" />
+
+    <article class="prose-dark">
+      <Content />
+    </article>
   </div>
 </BaseLayout>
-
-<!-- TODO: issue #2 で実装 -->
