@@ -1,0 +1,48 @@
+---
+import { SOCIAL_LINKS } from "../../consts";
+
+const heading = "LET'S TALK";
+const chars = heading.split("");
+---
+
+<section
+  id="contact"
+  class="relative flex min-h-[80vh] flex-col items-center justify-center gap-10 px-6"
+>
+  <h2
+    class="contact-heading text-fg text-center text-[clamp(2.5rem,10vw,8rem)] leading-none font-bold tracking-[-0.03em]"
+    aria-label="Let's talk"
+  >
+    <span class="block overflow-hidden" aria-hidden="true">
+      {
+        chars.map((char) =>
+          char === " " ? (
+            <span class="contact-char inline-block w-[0.3em]" />
+          ) : (
+            <span class="contact-char inline-block">{char}</span>
+          ),
+        )
+      }
+    </span>
+  </h2>
+  <div class="contact-links flex flex-wrap items-center justify-center gap-6">
+    {
+      SOCIAL_LINKS.map((link) => (
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="border-border bg-surface/60 hover:border-accent hover:text-accent-bright text-fg rounded-full border px-6 py-3 text-sm font-medium backdrop-blur-sm transition-colors duration-[var(--duration-fast)]"
+        >
+          {link.label}
+        </a>
+      ))
+    }
+    <a
+      href="/contact"
+      class="border-border bg-surface/60 hover:border-accent hover:text-accent-bright text-fg rounded-full border px-6 py-3 text-sm font-medium backdrop-blur-sm transition-colors duration-[var(--duration-fast)]"
+    >
+      お問い合わせ
+    </a>
+  </div>
+</section>

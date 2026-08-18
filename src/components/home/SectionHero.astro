@@ -1,0 +1,35 @@
+<section
+  id="hero"
+  class="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6"
+>
+  <h1
+    class="hero-title text-fg text-center text-[clamp(3rem,13vw,11rem)] leading-[0.85] font-bold tracking-[-0.04em]"
+  >
+    <span class="block overflow-hidden">
+      <span class="hero-line inline-block">YUDAI</span>
+    </span>
+    <span class="block overflow-hidden">
+      <span class="hero-line inline-block">HARADA</span>
+    </span>
+  </h1>
+  <p class="hero-sub text-fg-muted text-lg">エンジニア / つくることが好きです。</p>
+  <div class="hero-scroll-hint text-fg-subtle absolute bottom-10 text-xs tracking-[0.3em]">
+    SCROLL
+  </div>
+</section>
+
+<style>
+  @keyframes hero-scroll-hint {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  .hero-scroll-hint {
+    animation: hero-scroll-hint 1.8s ease-in-out infinite;
+  }
+</style>
