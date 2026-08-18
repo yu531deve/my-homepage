@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const works = [
+  { slug: "diary", title: "Diary", description: "自作入試数学問題サイト。" },
+  {
+    slug: "ptcg-card-explorer",
+    title: "PTCG Card Explorer",
+    description: "ポケモンカードを検索・閲覧できるツール。",
+  },
+  {
+    slug: "ptcg-ai-arena",
+    title: "PTCG AI Arena",
+    description: "ポケモンカードのAI対戦シミュレータ。",
+  },
+];
+---
+
+<BaseLayout title="Works">
+  <div class="mx-auto max-w-5xl px-6 py-24">
+    <h1 class="text-fg text-4xl font-bold tracking-tight">Works</h1>
+
+    <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {
+        works.map((work) => (
+          <a
+            href={`/works/${work.slug}`}
+            class="border-border bg-surface hover:border-accent rounded-lg border p-6 transition-colors"
+          >
+            <h2 class="text-fg text-xl font-bold">{work.title}</h2>
+            <p class="text-fg-muted mt-2 text-sm">{work.description}</p>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>
+
+<!-- TODO: issue #2 で実装 -->
