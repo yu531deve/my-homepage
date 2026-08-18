@@ -22,3 +22,13 @@ export const SOCIAL_LINKS: SocialLink[] = [
   { label: "GitHub", href: "https://github.com/yu531deve" },
   { label: "X", href: "https://x.com/Yudai531deve" },
 ];
+
+export const BLOG_TAGS = ["tech", "learning", "diary", "devlog"] as const;
+export type BlogTag = (typeof BLOG_TAGS)[number];
+
+export const BLOG_TAG_LABELS: Record<BlogTag, string> = {
+  tech: "技術",
+  learning: "学習ログ",
+  diary: "雑記",
+  devlog: "開発日誌",
+};
