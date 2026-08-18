@@ -1,19 +1,11 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const works = [
-  { slug: "diary", title: "Diary", description: "自作入試数学問題サイト。" },
-  {
-    slug: "ptcg-card-explorer",
-    title: "PTCG Card Explorer",
-    description: "ポケモンカードを検索・閲覧できるツール。",
-  },
-  {
-    slug: "ptcg-ai-arena",
-    title: "PTCG AI Arena",
-    description: "ポケモンカードのAI対戦シミュレータ。",
-  },
-];
+const works = (await getCollection("works")).sort((a, b) => {
+  if (a.data.order !== b.data.order) return a.data.order - b.data.order;
+  return a.data.title.localeCompare(b.data.title, "ja");
+});
 ---
 
 <BaseLayout title="Works">
@@ -24,16 +16,27 @@ const works = [
       {
         works.map((work) => (
           <a
-            href={`/works/${work.slug}`}
+            href={`/works/${work.id}`}
             class="border-border bg-surface hover:border-accent rounded-lg border p-6 transition-colors"
           >
-            <h2 class="text-fg text-xl font-bold">{work.title}</h2>
-            <p class="text-fg-muted mt-2 text-sm">{work.description}</p>
+            <div class="flex items-center gap-2">
+              <h2 class="text-fg text-xl font-bold">{work.data.title}</h2>
+              {work.data.wip && (
+                <span class="border-border text-fg-subtle rounded border px-2 py-0.5 text-xs">
+                  準備中
+                </span>
+              )}
+            </div>
+            <p class="text-fg-muted mt-2 text-sm">{work.data.summary}</p>
+            <ul class="mt-4 flex flex-wrap gap-2">
+              {work.data.tech.map((tech) => (
+                <li class="bg-surface-2 text-fg-subtle rounded px-2 py-0.5 text-xs">{tech}</li>
+              ))}
+            </ul>
+            {work.data.period && <p class="text-fg-subtle mt-3 text-xs">{work.data.period}</p>}
           </a>
         ))
       }
     </div>
   </div>
 </BaseLayout>
-
-<!-- TODO: issue #2 で実装 -->
