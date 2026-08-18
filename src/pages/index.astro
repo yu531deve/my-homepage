@@ -1,17 +1,54 @@
 ---
-
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_TITLE } from "../consts";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={SITE_TITLE}>
+  <section id="hero" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
+    <h1 class="text-fg text-5xl font-bold tracking-tight">Yudai Harada</h1>
+    <p class="text-fg-muted text-lg">エンジニア / つくることが好きです。</p>
+  </section>
+
+  <section id="about" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
+    <h2 class="text-fg text-3xl font-bold">About</h2>
+    <p class="text-fg-muted">プロフィールと経歴の概要をここに表示する。</p>
+  </section>
+
+  <section id="works" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
+    <h2 class="text-fg text-3xl font-bold">Works</h2>
+    <p class="text-fg-muted">これまで制作したプロジェクトを紹介する。</p>
+  </section>
+
+  <section id="blog" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
+    <h2 class="text-fg text-3xl font-bold">Blog</h2>
+    <p class="text-fg-muted">最新の記事をここに並べる。</p>
+  </section>
+
+  <section id="contact" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
+    <h2 class="text-fg text-3xl font-bold">Contact</h2>
+    <p class="text-fg-muted">SNSリンクなどの連絡先をここに表示する。</p>
+  </section>
+</BaseLayout>
+
+<!-- TODO: issue #3 でスクロール連動演出を実装 -->
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!prefersReducedMotion) {
+    const heroHeading = document.querySelector("#hero h1");
+    if (heroHeading) {
+      gsap.from(heroHeading, {
+        opacity: 0,
+        y: 24,
+        duration: 0.8,
+        ease: "power2.out",
+      });
+    }
+  }
+</script>

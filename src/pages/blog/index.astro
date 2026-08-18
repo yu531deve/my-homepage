@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = [
+  {
+    slug: "hello-world",
+    title: "Hello World",
+    date: "2026-08-01",
+    tags: ["devlog"],
+  },
+  {
+    slug: "astro-setup",
+    title: "Astro でサイトをセットアップした",
+    date: "2026-08-19",
+    tags: ["tech", "devlog"],
+  },
+];
+---
+
+<BaseLayout title="Blog">
+  <div class="mx-auto max-w-3xl px-6 py-24">
+    <h1 class="text-fg text-4xl font-bold tracking-tight">Blog</h1>
+
+    <ul class="mt-12 flex flex-col gap-6">
+      {
+        posts.map((post) => (
+          <li class="border-border border-b pb-6">
+            <a href={`/blog/${post.slug}`} class="hover:text-accent-bright">
+              <p class="text-fg-subtle text-sm">{post.date}</p>
+              <h2 class="text-fg text-xl font-bold">{post.title}</h2>
+              <div class="mt-2 flex gap-2">
+                {post.tags.map((tag) => (
+                  <span class="text-accent text-xs">#{tag}</span>
+                ))}
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<!-- TODO: issue #2 で実装 -->
