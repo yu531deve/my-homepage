@@ -4,21 +4,23 @@ import { SOCIAL_LINKS } from "../../consts";
 
 <section
   id="contact"
-  class="relative flex min-h-[80vh] flex-col items-center justify-center gap-10 px-6"
+  class="hit-layer relative flex min-h-[80vh] flex-col items-center justify-center gap-10 px-6"
 >
   <h2
-    class="contact-heading text-fg text-center text-[clamp(3rem,13vw,11rem)] leading-none font-bold tracking-[-0.03em]"
+    class="contact-heading gl-text text-fg text-center text-[clamp(3rem,13vw,11rem)] leading-none font-bold tracking-[-0.03em]"
+    data-gl-anchor="contact-heading"
   >
     LET'S TALK
   </h2>
   <div class="contact-links flex flex-wrap items-center justify-center gap-6">
     {
-      SOCIAL_LINKS.map((link) => (
+      SOCIAL_LINKS.map((link, i) => (
         <a
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          class="border-border bg-surface/60 hover:border-accent hover:text-accent-bright text-fg rounded-full border px-6 py-3 text-sm font-medium backdrop-blur-sm transition-colors duration-[var(--duration-fast)]"
+          class="gl-hit border-border bg-surface/60 hover:border-accent hover:text-accent-bright text-fg rounded-full border px-6 py-3 text-sm font-medium backdrop-blur-sm transition-colors duration-[var(--duration-fast)]"
+          data-gl-hit={`contact-orb-${i}`}
         >
           {link.label}
         </a>
@@ -26,7 +28,8 @@ import { SOCIAL_LINKS } from "../../consts";
     }
     <a
       href="/contact"
-      class="border-border bg-surface/60 hover:border-accent hover:text-accent-bright text-fg rounded-full border px-6 py-3 text-sm font-medium backdrop-blur-sm transition-colors duration-[var(--duration-fast)]"
+      class="gl-hit border-border bg-surface/60 hover:border-accent hover:text-accent-bright text-fg rounded-full border px-6 py-3 text-sm font-medium backdrop-blur-sm transition-colors duration-[var(--duration-fast)]"
+      data-gl-hit="contact-orb-2"
     >
       お問い合わせ
     </a>

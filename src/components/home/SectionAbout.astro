@@ -2,23 +2,34 @@
 import Card from "./Card.astro";
 ---
 
-<section id="about" class="relative min-h-screen overflow-hidden px-6 md:h-screen">
+<section id="about" class="hit-layer relative min-h-screen overflow-hidden px-6 md:h-screen">
   <div class="about-inner scene-inner relative mx-auto flex h-full w-full max-w-6xl items-center">
     <h2
-      class="about-heading text-fg pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-[clamp(5rem,14vw,13rem)] leading-none font-bold"
+      class="about-heading gl-text text-fg pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-[clamp(5rem,14vw,13rem)] leading-none font-bold"
+      data-gl-anchor="about-heading"
     >
       About
     </h2>
     <div class="about-body relative z-10 flex max-w-xl flex-col gap-6">
       <p class="text-fg-muted text-lg leading-relaxed">
-        <span class="about-line block">Webアプリケーションを中心に、</span>
-        <span class="about-line block">企画から実装まで一貫してつくるのが好きです。</span>
-        <span class="about-line block">日々の学びや制作の記録もこのサイトに残しています。</span>
+        <span class="about-line gl-text block" data-jp data-gl-anchor="about-line-0"
+          >Webアプリケーションを中心に、</span
+        >
+        <span class="about-line gl-text block" data-jp data-gl-anchor="about-line-1"
+          >企画から実装まで一貫してつくるのが好きです。</span
+        >
+        <span class="about-line gl-text block" data-jp data-gl-anchor="about-line-2"
+          >日々の学びや制作の記録もこのサイトに残しています。</span
+        >
       </p>
-      <Card href="/about" class="about-card">
+      <Card href="/about" class="about-card gl-hit" data-gl-hit="about-card">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-fg group-hover:text-accent-bright text-lg font-bold transition-colors">
+            <p
+              class="text-fg group-hover:text-accent-bright gl-text text-lg font-bold transition-colors"
+              data-jp
+              data-gl-anchor="about-card-title"
+            >
               自己紹介を見る
             </p>
             <p class="text-fg-subtle mt-1 text-sm">経歴・スキル・興味関心について</p>

@@ -1,7 +1,6 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import BackgroundLayer from "../components/home/BackgroundLayer.astro";
 import SectionHero from "../components/home/SectionHero.astro";
 import SectionAbout from "../components/home/SectionAbout.astro";
 import SectionWorks from "../components/home/SectionWorks.astro";
@@ -24,11 +23,77 @@ const latestPosts = (
   html {
     scroll-behavior: auto;
   }
+
+  /* v3: JS が html.webgl-on を付けた時だけ、WebGL 化されたテキストを
+     視覚的に隠す(sr-only 相当)。JS が動かない/reduced-motion では
+     このブロックは一切効かず、通常の静的ページとして表示される。 */
+  html.webgl-on .gl-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* 日本語テキストは WebGL に載せず、canvas の上に重ねる DOM オーバーレイ
+     として可視のまま残す(§7)。 */
+  html.webgl-on .gl-text[data-jp] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: max-content;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    will-change: transform;
+    text-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  html.webgl-on #gl-stage {
+    display: block;
+  }
+
+  html.webgl-on .hit-layer {
+    position: relative;
+    z-index: 1;
+  }
+
+  .gl-hit {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    background: transparent;
+    border: 0;
+    z-index: 3;
+  }
+
+  html:not(.webgl-on) .gl-hit {
+    position: static;
+  }
+
+  html.webgl-on .gl-hit[data-gl-hit] {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  html.webgl-on .gl-hit[data-gl-hit].gl-hit--synced {
+    overflow: visible;
+    pointer-events: auto;
+  }
 </style>
 
 <BaseLayout title={SITE_TITLE}>
-  <BackgroundLayer />
-  <div class="relative z-10" id="scene-root">
+  <div id="gl-stage" style="display:none" aria-hidden="true"></div>
+  <div class="relative z-10" id="scroll-proxy">
     <SectionHero />
     <SectionAbout />
     <SectionWorks works={featuredWorks} />
@@ -36,8 +101,3 @@ const latestPosts = (
     <SectionContact />
   </div>
 </BaseLayout>
-
-<script>
-  import { initHomeScroll } from "../scripts/home-scroll";
-  void initHomeScroll();
-</script>
