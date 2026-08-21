@@ -33,6 +33,14 @@ export async function initHomeScroll(): Promise<void> {
   );
 
   mm.add("(max-width: 767px)", () => buildMobileReveals(bg));
+
+  // 破棄処理: ページ離脱時に WebGL / ScrollTrigger / matchMedia の後始末をする
+  const teardown = (): void => {
+    mm.revert();
+    ScrollTrigger.getAll().forEach((st) => st.kill());
+    bg?.destroy();
+  };
+  window.addEventListener("pagehide", teardown, { once: true });
 }
 
 function buildDesktopTimeline(bg: BackgroundHandle | null): void {
