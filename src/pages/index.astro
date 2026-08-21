@@ -28,7 +28,7 @@ const latestPosts = (
 
 <BaseLayout title={SITE_TITLE}>
   <BackgroundLayer />
-  <div class="relative z-10">
+  <div class="relative z-10" id="scene-root">
     <SectionHero />
     <SectionAbout />
     <SectionWorks works={featuredWorks} />
@@ -39,5 +39,5 @@ const latestPosts = (
 
 <script>
   import { initHomeScroll } from "../scripts/home-scroll";
-  initHomeScroll();
+  void initHomeScroll();
 </script>
