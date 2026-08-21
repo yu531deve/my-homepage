@@ -1,19 +1,28 @@
-<section
-  id="hero"
-  class="relative flex min-h-screen flex-col items-center justify-center gap-6 px-6"
->
-  <h1
-    class="hero-title text-fg text-center text-[clamp(3rem,13vw,11rem)] leading-[0.85] font-bold tracking-[-0.04em]"
-  >
-    <span class="block overflow-hidden">
-      <span class="hero-line inline-block">YUDAI</span>
-    </span>
-    <span class="block overflow-hidden">
-      <span class="hero-line inline-block">HARADA</span>
-    </span>
-  </h1>
-  <p class="hero-sub text-fg-muted text-lg">エンジニア / つくることが好きです。</p>
-  <div class="hero-scroll-hint text-fg-subtle absolute bottom-10 text-xs tracking-[0.3em]">
+<section id="hero" class="relative min-h-screen overflow-hidden px-6 md:h-screen">
+  <div class="scene-inner absolute inset-0 flex flex-col items-center justify-center gap-6">
+    <div
+      class="hero-stage relative flex flex-col items-center justify-center"
+      style="perspective: 1000px; transform-style: preserve-3d;"
+    >
+      <p
+        class="hero-layer--back text-fg pointer-events-none absolute inset-0 flex items-center justify-center text-[28vw] leading-none font-bold whitespace-nowrap opacity-[0.06]"
+        style="-webkit-text-stroke: 1px currentColor; color: transparent;"
+        aria-hidden="true"
+      >
+        PORTFOLIO 2026
+      </p>
+      <h1
+        class="hero-layer--main text-fg text-center text-[clamp(4rem,17vw,15rem)] leading-[0.85] font-bold tracking-[-0.04em]"
+      >
+        <span class="hero-heading block">YUDAI</span>
+        <span class="hero-heading block">HARADA</span>
+      </h1>
+    </div>
+    <div class="hero-layer--front flex flex-col items-center gap-6">
+      <p class="hero-sub text-fg-muted text-lg">エンジニア / つくることが好きです。</p>
+    </div>
+  </div>
+  <div class="hero-scroll-hint text-fg-subtle absolute bottom-10 left-1/2 -translate-x-1/2 text-xs tracking-[0.3em]">
     SCROLL
   </div>
 </section>

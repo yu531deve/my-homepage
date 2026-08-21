@@ -1,8 +1,5 @@
 ---
 import { SOCIAL_LINKS } from "../../consts";
-
-const heading = "LET'S TALK";
-const chars = heading.split("");
 ---
 
 <section
@@ -10,20 +7,9 @@ const chars = heading.split("");
   class="relative flex min-h-[80vh] flex-col items-center justify-center gap-10 px-6"
 >
   <h2
-    class="contact-heading text-fg text-center text-[clamp(2.5rem,10vw,8rem)] leading-none font-bold tracking-[-0.03em]"
-    aria-label="Let's talk"
+    class="contact-heading text-fg text-center text-[clamp(3rem,13vw,11rem)] leading-none font-bold tracking-[-0.03em]"
   >
-    <span class="block overflow-hidden" aria-hidden="true">
-      {
-        chars.map((char) =>
-          char === " " ? (
-            <span class="contact-char inline-block w-[0.3em]" />
-          ) : (
-            <span class="contact-char inline-block">{char}</span>
-          ),
-        )
-      }
-    </span>
+    LET'S TALK
   </h2>
   <div class="contact-links flex flex-wrap items-center justify-center gap-6">
     {
