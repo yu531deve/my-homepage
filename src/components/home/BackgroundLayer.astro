@@ -1,31 +1,15 @@
-<div class="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-  <div class="bg-glow bg-glow--a"></div>
-  <div class="bg-glow bg-glow--b"></div>
-  <canvas id="bg-particles" class="absolute inset-0 h-full w-full opacity-45"></canvas>
+<div class="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+  <canvas id="bg-gl" class="absolute inset-0 block h-full w-full"></canvas>
   <div
-    class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,var(--color-base)_100%)]"
+    class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,var(--color-base)_100%)]"
   >
   </div>
+  <div class="bg-noise absolute inset-0 opacity-[0.035] mix-blend-overlay"></div>
 </div>
 
 <style>
-  .bg-glow {
-    position: absolute;
-    width: 60vmax;
-    height: 60vmax;
-    border-radius: 9999px;
-    filter: blur(120px);
-    opacity: 0.16;
-  }
-  .bg-glow--a {
-    background: var(--color-accent);
-    top: -20vmax;
-    left: -10vmax;
-  }
-  .bg-glow--b {
-    background: #3b82f6;
-    bottom: -25vmax;
-    right: -15vmax;
-    opacity: 0.1;
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
   }
 </style>

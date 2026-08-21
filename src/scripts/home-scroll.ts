@@ -1,21 +1,22 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initSmoothScroll } from "./smooth-scroll";
-import { initBackground } from "./background";
 
-export function initHomeScroll(): void {
+export async function initHomeScroll(): Promise<void> {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const isCoarse = window.matchMedia("(pointer: coarse)").matches;
 
-  if (reduced) return; // registerPlugin もしない。HTML は静的初期状態で完成している
+  if (reduced) return; // registerPlugin もしない。three の動的 import も行わない。HTML は静的初期状態で完成している
 
   gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ ignoreMobileResize: true });
 
   if (!isCoarse) {
     initSmoothScroll();
   }
 
-  initBackground();
+  const { initWebGLBackground } = await import("./webgl-background");
+  initWebGLBackground();
 
   const mm = gsap.matchMedia();
 
