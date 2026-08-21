@@ -6,6 +6,7 @@ import SectionAbout from "../components/home/SectionAbout.astro";
 import SectionWorks from "../components/home/SectionWorks.astro";
 import SectionBlog from "../components/home/SectionBlog.astro";
 import SectionContact from "../components/home/SectionContact.astro";
+import GLStage from "../components/home/GLStage.astro";
 import { SITE_TITLE } from "../consts";
 
 const featuredWorks = (await getCollection("works"))
@@ -92,7 +93,9 @@ const latestPosts = (
 </style>
 
 <BaseLayout title={SITE_TITLE}>
-  <div id="gl-stage" style="display:none" aria-hidden="true"></div>
+  <div id="gl-stage" style="display:none; position:fixed; inset:0; z-index:0;" aria-hidden="true">
+    <GLStage />
+  </div>
   <div class="relative z-10" id="scroll-proxy">
     <SectionHero />
     <SectionAbout />
@@ -101,3 +104,8 @@ const latestPosts = (
     <SectionContact />
   </div>
 </BaseLayout>
+
+<script>
+  import { initGL } from "../scripts/gl/index";
+  void initGL();
+</script>
