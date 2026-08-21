@@ -8,23 +8,32 @@ interface Props {
 const { works } = Astro.props;
 ---
 
-<section id="works" class="relative">
-  <div class="works-pin overflow-hidden md:flex md:h-screen md:items-center">
-    <div
-      class="works-track grid gap-6 px-6 py-24 will-change-transform md:flex md:w-max md:gap-8 md:px-[10vw] md:py-0"
+<section id="works" class="relative min-h-screen overflow-hidden px-6 py-24 md:h-screen md:px-0 md:py-0">
+  <div
+    class="works-inner scene-inner relative flex h-full w-full flex-col gap-6 md:block"
+    style="perspective: 1200px; transform-style: preserve-3d;"
+  >
+    <h2
+      class="works-heading text-fg pointer-events-none relative mb-10 text-4xl leading-none font-bold md:absolute md:inset-0 md:mb-0 md:flex md:items-center md:justify-center md:text-[22vw] md:opacity-[0.08]"
+      style="-webkit-text-stroke: 1px currentColor;"
+      aria-hidden="true"
     >
-      <div class="works-intro w-full shrink-0 md:w-[70vw] lg:w-[40vw]">
-        <h2 class="text-fg text-4xl font-bold md:text-6xl">Works</h2>
-        <p class="text-fg-muted mt-4 max-w-md text-lg leading-relaxed">
-          これまで制作したプロジェクトの一部です。企画・設計・実装まで自分の手で形にしています。
-        </p>
-      </div>
+      WORKS
+    </h2>
+    <div class="works-stage flex flex-col gap-6 md:absolute md:inset-0 md:flex md:items-center md:justify-center">
       {
-        works.map((work) => (
+        works.map((work, i) => (
           <a
-            class="work-card border-border bg-surface/60 hover:border-accent w-full shrink-0 rounded-lg border p-6 backdrop-blur-sm transition-colors duration-[var(--duration-fast)] md:w-[80vw] lg:w-[34vw]"
+            class="work-card border-border bg-surface/60 hover:border-accent relative w-full rounded-lg border p-6 backdrop-blur-sm transition-colors duration-[var(--duration-fast)] md:absolute md:w-[min(60vw,44rem)]"
             href={`/works/${work.id}`}
+            data-index={i}
           >
+            <span
+              class="work-card__index text-fg pointer-events-none absolute -top-6 -left-2 text-[10vw] leading-none font-bold opacity-[0.12] select-none md:block"
+              aria-hidden="true"
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
             <h3 class="text-fg text-xl font-bold">{work.data.title}</h3>
             <p class="text-fg-muted mt-2 text-sm">{work.data.summary}</p>
             <ul class="mt-4 flex flex-wrap gap-2">
@@ -36,8 +45,9 @@ const { works } = Astro.props;
         ))
       }
       <a
-        class="works-more border-border bg-surface/60 hover:border-accent flex w-full shrink-0 items-center justify-center rounded-lg border p-6 text-center backdrop-blur-sm transition-colors duration-[var(--duration-fast)] md:w-[60vw] lg:w-[24vw]"
+        class="work-card works-more border-border bg-surface/60 hover:border-accent relative flex w-full items-center justify-center rounded-lg border p-6 text-center backdrop-blur-sm transition-colors duration-[var(--duration-fast)] md:absolute md:w-[min(60vw,44rem)]"
         href="/works"
+        data-index={works.length}
       >
         <span class="text-fg text-lg font-bold">すべての作品を見る →</span>
       </a>

@@ -231,61 +231,113 @@ function setupAbout(isMobile: boolean, bg: BackgroundHandle | null): void {
 }
 
 function setupWorks(bg: BackgroundHandle | null): void {
-  const track = document.querySelector<HTMLElement>(".works-track");
-  const pin = document.querySelector<HTMLElement>(".works-pin");
-  if (!track || !pin) return;
+  const cards = gsap.utils.toArray<HTMLElement>(".work-card");
+  const heading = document.querySelector<HTMLElement>(".works-heading");
+  const n = cards.length;
+  if (n === 0) return;
 
-  const distance = (): number => track.scrollWidth - window.innerWidth;
+  cards.forEach((card, i) => {
+    gsap.set(card, {
+      z: -2500 - i * 900,
+      rotateY: i % 2 ? 35 : -35,
+      rotateX: 12,
+      opacity: 0,
+      scale: 0.9,
+    });
+  });
 
-  const horizontalTween = gsap.to(track, {
-    x: () => -distance(),
-    ease: "none",
-    scrollTrigger: {
-      trigger: "#works",
-      start: "top top",
-      end: () => `+=${distance()}`,
-      pin,
-      pinSpacing: true,
-      scrub: 1,
-      anticipatePin: 1,
-      invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        if (self.progress > 0.05) bg?.setSection(2);
-        if (self.progress > 0.9) bg?.setSection(3);
-      },
+  let currentFront = -1;
+  function setFrontCard(index: number): void {
+    if (index === currentFront) return;
+    currentFront = index;
+    cards.forEach((card, i) => {
+      card.style.pointerEvents = i === index ? "auto" : "none";
+    });
+  }
+
+  const st = ScrollTrigger.create({
+    trigger: "#works",
+    start: "top top",
+    end: () => `+=${(n + 1) * 90}%`,
+    pin: true,
+    scrub: 1.2,
+    anticipatePin: 1,
+    invalidateOnRefresh: true,
+    onUpdate: (self) => {
+      const idx = Math.round(self.progress * n);
+      setFrontCard(Math.min(n - 1, Math.max(0, idx)));
+      if (self.progress > 0.05) bg?.setSection(2);
+      if (self.progress > 0.92) bg?.setSection(3);
     },
   });
 
-  document.querySelectorAll<HTMLElement>(".work-card").forEach((card) => {
-    gsap.from(card, {
-      scale: 0.88,
-      opacity: 0.35,
+  if (heading) {
+    gsap.to(heading, {
+      xPercent: -60,
       ease: "none",
       scrollTrigger: {
-        trigger: card,
-        containerAnimation: horizontalTween,
-        start: "left 90%",
-        end: "left 55%",
+        trigger: "#works",
+        start: "top top",
+        end: () => `+=${(n + 1) * 90}%`,
         scrub: true,
         invalidateOnRefresh: true,
       },
     });
+  }
+
+  cards.forEach((card, i) => {
+    const index = document.querySelector<HTMLElement>(`.work-card[data-index="${i}"] .work-card__index`);
+    const start = i / (n + 1);
+    const end = (i + 2) / (n + 1);
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#works",
+        start: "top top",
+        end: () => `+=${(n + 1) * 90}%`,
+        scrub: true,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    tl.fromTo(
+      card,
+      { z: -2500 - i * 900, rotateY: i % 2 ? 35 : -35, rotateX: 12, opacity: 0, scale: 0.9 },
+      { z: 0, rotateY: 0, rotateX: 0, opacity: 1, scale: 1, ease: "none" },
+      start,
+    );
+    tl.to(
+      card,
+      {
+        z: 900,
+        rotateY: i % 2 ? -25 : 25,
+        opacity: 0,
+        scale: 1.25,
+        filter: "blur(14px)",
+        ease: "none",
+      },
+      (start + end) / 2,
+    );
+
+    if (index) {
+      tl.fromTo(index, { xPercent: -40 }, { xPercent: 40, ease: "none" }, start);
+    }
   });
 
-  const trackParent = track.parentElement;
-  if (trackParent) {
-    trackParent.addEventListener("focusin", () => {
-      trackParent.scrollLeft = 0;
-      trackParent.scrollTop = 0;
+  document.querySelectorAll<HTMLElement>(".work-card").forEach((card, i) => {
+    card.addEventListener("focusin", () => {
+      const progress = i / n;
+      st.scroll(st.start + (st.end - st.start) * progress);
     });
-  }
+  });
 }
 
 function setupWorksMobile(): void {
   document.querySelectorAll<HTMLElement>(".work-card").forEach((card) => {
     gsap.from(card, {
-      y: 40,
+      y: 60,
       opacity: 0,
+      rotateX: 10,
       ease: "power2.out",
       duration: 0.6,
       scrollTrigger: {
