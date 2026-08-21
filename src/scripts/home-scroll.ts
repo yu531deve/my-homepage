@@ -27,9 +27,8 @@ export async function initHomeScroll(): Promise<void> {
 
   const mm = gsap.matchMedia();
 
-  mm.add(
-    "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
-    () => buildDesktopTimeline(bg),
+  mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () =>
+    buildDesktopTimeline(bg),
   );
 
   mm.add("(max-width: 767px)", () => buildMobileReveals(bg));
@@ -137,11 +136,7 @@ function setupHero(isMobile: boolean, bg: BackgroundHandle | null): void {
   collapse.to(heroBack, { scale: 3.2, opacity: 0, ease: "none" }, 0);
   collapse.to(heroSub, { yPercent: -180, opacity: 0, ease: "none" }, 0.1);
   if (heroScrollHint) collapse.to(heroScrollHint, { opacity: 0, ease: "none" }, 0);
-  collapse.to(
-    heroSection,
-    { scale: 0.72, opacity: 0, filter: "blur(8px)", ease: "none" },
-    0.35,
-  );
+  collapse.to(heroSection, { scale: 0.72, opacity: 0, filter: "blur(8px)", ease: "none" }, 0.35);
 }
 
 function setupAbout(isMobile: boolean, bg: BackgroundHandle | null): void {
@@ -208,19 +203,11 @@ function setupAbout(isMobile: boolean, bg: BackgroundHandle | null): void {
   }
 
   if (aboutLines.length > 0) {
-    tl.from(
-      aboutLines,
-      { xPercent: 60, opacity: 0, skewY: 6, stagger: 0.12, ease: "none" },
-      0.2,
-    );
+    tl.from(aboutLines, { xPercent: 60, opacity: 0, skewY: 6, stagger: 0.12, ease: "none" }, 0.2);
   }
 
   if (aboutCard) {
-    tl.from(
-      aboutCard,
-      { yPercent: 120, rotateX: 45, opacity: 0, scale: 0.8, ease: "none" },
-      0.3,
-    );
+    tl.from(aboutCard, { yPercent: 120, rotateX: 45, opacity: 0, scale: 0.8, ease: "none" }, 0.3);
   }
 
   if (aboutHeading) {
@@ -294,7 +281,9 @@ function setupWorks(bg: BackgroundHandle | null): void {
   }
 
   cards.forEach((card, i) => {
-    const index = document.querySelector<HTMLElement>(`.work-card[data-index="${i}"] .work-card__index`);
+    const index = document.querySelector<HTMLElement>(
+      `.work-card[data-index="${i}"] .work-card__index`,
+    );
     const start = i / (n + 1);
     const end = (i + 2) / (n + 1);
 

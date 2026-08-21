@@ -8,7 +8,10 @@ interface Props {
 const { works } = Astro.props;
 ---
 
-<section id="works" class="relative min-h-screen overflow-hidden px-6 py-24 md:h-screen md:px-0 md:py-0">
+<section
+  id="works"
+  class="relative min-h-screen overflow-hidden px-6 py-24 md:h-screen md:px-0 md:py-0"
+>
   <div
     class="works-inner scene-inner relative flex h-full w-full flex-col gap-6 md:block"
     style="perspective: 1200px; transform-style: preserve-3d;"
@@ -20,7 +23,9 @@ const { works } = Astro.props;
     >
       WORKS
     </h2>
-    <div class="works-stage flex flex-col gap-6 md:absolute md:inset-0 md:flex md:items-center md:justify-center">
+    <div
+      class="works-stage flex flex-col gap-6 md:absolute md:inset-0 md:flex md:items-center md:justify-center"
+    >
       {
         works.map((work, i) => (
           <a

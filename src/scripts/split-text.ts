@@ -12,7 +12,11 @@ interface SplitOptions {
  * - 各文字 span には --i カスタムプロパティ(インデックス)を付与する
  * - 冪等: data-split="true" の要素は再分割しない
  */
-export function splitChars(el: HTMLElement, charClass: string, options: SplitOptions = {}): HTMLElement[] {
+export function splitChars(
+  el: HTMLElement,
+  charClass: string,
+  options: SplitOptions = {},
+): HTMLElement[] {
   if (el.dataset.split === "true") {
     return Array.from(el.querySelectorAll<HTMLElement>(`.${charClass}`));
   }
