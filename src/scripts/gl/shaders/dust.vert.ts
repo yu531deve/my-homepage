@@ -18,7 +18,7 @@ void main() {
   vSeed = aSeed;
 
   vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-  gl_PointSize = uSize * aScale * (300.0 / -mvPosition.z);
+  gl_PointSize = min(uSize * aScale * (140.0 / -mvPosition.z), 5.5);
   gl_Position = projectionMatrix * mvPosition;
 }
 `;

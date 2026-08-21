@@ -32,11 +32,11 @@ export function createComposer(
 
   const bloom = new BloomEffect({
     blendFunction: BlendFunction.SCREEN,
-    luminanceThreshold: 0.28,
-    luminanceSmoothing: 0.32,
-    intensity: 1.45,
+    luminanceThreshold: 0.82,
+    luminanceSmoothing: 0.15,
+    intensity: 0.35,
     mipmapBlur: true,
-    radius: 0.72,
+    radius: 0.3,
   });
 
   let chromaticAberration: ChromaticAberrationEffect | null = null;

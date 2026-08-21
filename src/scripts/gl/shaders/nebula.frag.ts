@@ -30,27 +30,27 @@ void main() {
   float breath = 0.5 + 0.5 * sin(uTime * 0.35);
   f += breath * 0.06;
 
-  float core = smoothstep(0.42, 0.78, f);
-  float veins = pow(max(1.0 - abs(f - 0.55) * 3.2, 0.0), 6.0);
+  float core = smoothstep(0.62, 0.9, f);
+  float veins = pow(max(1.0 - abs(f - 0.55) * 3.2, 0.0), 14.0);
 
-  vec3 base = vec3(0.039, 0.039, 0.043);
+  vec3 base = vec3(0.008, 0.008, 0.009);
   vec3 emerald = vec3(0.063, 0.725, 0.506);
   vec3 bright = vec3(0.204, 0.827, 0.600);
-  vec3 deep = vec3(0.023, 0.145, 0.180);
+  vec3 deep = vec3(0.004, 0.016, 0.020);
 
   vec3 col = base;
-  col = mix(col, deep, smoothstep(0.25, 0.6, f));
-  col = mix(col, emerald, core * 0.55);
-  col += bright * veins * (0.9 + 0.6 * breath);
+  col = mix(col, deep, smoothstep(0.45, 0.75, f));
+  col = mix(col, emerald * 0.1, core * 0.3);
+  col += bright * veins * (0.09 + 0.05 * breath);
 
   // uProgress: Hero(青緑寄り)→ Works(暗く沈む)→ Contact(発光強)
-  vec3 heroTint = mix(col, emerald * 0.9, 0.15);
-  vec3 worksTint = col * 0.55;
-  vec3 contactTint = col * 1.35 + bright * 0.25;
+  vec3 heroTint = mix(col, emerald * 0.08, 0.12);
+  vec3 worksTint = col * 0.25;
+  vec3 contactTint = col * 0.7 + bright * 0.02;
 
   vec3 sceneCol = mix(heroTint, worksTint, smoothstep(0.16, 0.55, uProgress));
   sceneCol = mix(sceneCol, contactTint, smoothstep(0.75, 1.0, uProgress));
 
-  gl_FragColor = vec4(sceneCol, 1.0);
+  gl_FragColor = vec4(sceneCol * 0.045, 1.0);
 }
 `;

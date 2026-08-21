@@ -25,7 +25,7 @@ export function createDust(count: number): DustHandle {
     positions[i * 3 + 1] = Math.sin(angle) * radius * 0.6;
     positions[i * 3 + 2] = z;
 
-    scales[i] = Math.random() < 0.3 ? 2.2 : 1.0;
+    scales[i] = Math.random() < 0.3 ? 1.5 : 1.0;
     seeds[i] = Math.random() * 1000;
   }
 
@@ -42,9 +42,9 @@ export function createDust(count: number): DustHandle {
     blending: AdditiveBlending,
     uniforms: {
       uTime: { value: 0 },
-      uSize: { value: 2.4 },
+      uSize: { value: 0.8 },
       uSpan: { value: SPAN },
-      uOpacity: { value: 0.85 },
+      uOpacity: { value: 0.32 },
     },
   });
 
