@@ -1,0 +1,72 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { BLOG_TAG_LABELS } from "../../consts";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+}
+
+const { posts } = Astro.props;
+
+const dateFormatter = new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+---
+
+<section
+  id="blog"
+  class="hit-layer relative min-h-screen overflow-hidden px-6 py-24 md:h-screen md:py-0"
+>
+  <div class="scene-inner relative mx-auto flex h-full w-full max-w-5xl flex-col justify-center">
+    <div class="blog-heading-block">
+      <h2
+        class="blog-heading gl-text text-fg text-[16vw] leading-none font-bold md:text-[10vw]"
+        data-gl-anchor="blog-heading"
+      >
+        Blog
+      </h2>
+    </div>
+    <div class="blog-cards mt-12 grid gap-6 [perspective:1000px] md:grid-cols-3">
+      {
+        posts.map((post, i) => (
+          <a
+            class="blog-card gl-hit border-border bg-surface/60 hover:border-accent block rounded-lg border p-6 backdrop-blur-sm transition-colors duration-[var(--duration-fast)]"
+            href={`/blog/${post.id}`}
+            data-gl-hit={`blog-${i}`}
+            data-date={dateFormatter.format(post.data.date)}
+          >
+            <time
+              datetime={post.data.date.toISOString()}
+              class="gl-text text-fg-subtle text-sm"
+              data-gl-anchor={`blog-${i}-date`}
+            >
+              {dateFormatter.format(post.data.date)}
+            </time>
+            <h3 class="gl-text text-fg mt-2 text-lg font-bold" data-gl-anchor={`blog-${i}-title`}>
+              {post.data.title}
+            </h3>
+            <p class="gl-text text-fg-muted mt-2 text-sm" data-gl-anchor={`blog-${i}-summary`}>
+              {post.data.summary}
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              {post.data.tags.map((tag) => (
+                <span class="text-accent text-xs">#{BLOG_TAG_LABELS[tag]}</span>
+              ))}
+            </div>
+          </a>
+        ))
+      }
+    </div>
+    <a
+      href="/blog"
+      class="blog-more gl-hit gl-text text-accent-bright mt-10 inline-block text-sm hover:underline"
+      data-gl-hit="blog-more"
+      data-jp
+      data-gl-anchor="blog-more-label"
+    >
+      記事一覧へ →
+    </a>
+  </div>
+</section>

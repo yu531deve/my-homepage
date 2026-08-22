@@ -1,0 +1,20 @@
+---
+interface Props {
+  href: string;
+  class?: string;
+  "data-gl-hit"?: string;
+}
+
+const { href, class: className, ...rest } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    "group border-border bg-surface/60 hover:border-accent block rounded-lg border p-6 backdrop-blur-sm transition-colors duration-[var(--duration-fast)]",
+    className,
+  ]}
+  {...rest}
+>
+  <slot />
+</a>

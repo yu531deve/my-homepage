@@ -1,54 +1,115 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SectionHero from "../components/home/SectionHero.astro";
+import SectionAbout from "../components/home/SectionAbout.astro";
+import SectionWorks from "../components/home/SectionWorks.astro";
+import SectionBlog from "../components/home/SectionBlog.astro";
+import SectionContact from "../components/home/SectionContact.astro";
+import GLStage from "../components/home/GLStage.astro";
 import { SITE_TITLE } from "../consts";
+
+const featuredWorks = (await getCollection("works"))
+  .filter((w) => w.data.featured)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const latestPosts = (
+  await getCollection("blog", ({ data }) => (import.meta.env.PROD ? !data.draft : true))
+)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
 ---
 
+<style is:global>
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* v3: JS が html.webgl-on を付けた時だけ、WebGL 化されたテキストを
+     視覚的に隠す(sr-only 相当)。JS が動かない/reduced-motion では
+     このブロックは一切効かず、通常の静的ページとして表示される。 */
+  html.webgl-on .gl-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* 日本語テキストは WebGL に載せず、canvas の上に重ねる DOM オーバーレイ
+     として可視のまま残す(§7)。 */
+  html.webgl-on .gl-text[data-jp] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: max-content;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    will-change: transform;
+    text-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .gl-stage-hidden {
+    display: none;
+  }
+
+  html.webgl-on #gl-stage {
+    display: block;
+  }
+
+  html.webgl-on .hit-layer {
+    position: relative;
+    z-index: 1;
+  }
+
+  .gl-hit {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+    background: transparent;
+    border: 0;
+    z-index: 3;
+  }
+
+  html:not(.webgl-on) .gl-hit {
+    position: static;
+  }
+
+  html.webgl-on .gl-hit[data-gl-hit] {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  html.webgl-on .gl-hit[data-gl-hit].gl-hit--synced {
+    overflow: visible;
+    pointer-events: auto;
+  }
+</style>
+
 <BaseLayout title={SITE_TITLE}>
-  <section id="hero" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
-    <h1 class="text-fg text-5xl font-bold tracking-tight">Yudai Harada</h1>
-    <p class="text-fg-muted text-lg">エンジニア / つくることが好きです。</p>
-  </section>
-
-  <section id="about" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
-    <h2 class="text-fg text-3xl font-bold">About</h2>
-    <p class="text-fg-muted">プロフィールと経歴の概要をここに表示する。</p>
-  </section>
-
-  <section id="works" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
-    <h2 class="text-fg text-3xl font-bold">Works</h2>
-    <p class="text-fg-muted">これまで制作したプロジェクトを紹介する。</p>
-  </section>
-
-  <section id="blog" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
-    <h2 class="text-fg text-3xl font-bold">Blog</h2>
-    <p class="text-fg-muted">最新の記事をここに並べる。</p>
-  </section>
-
-  <section id="contact" class="flex min-h-screen flex-col items-center justify-center gap-4 px-6">
-    <h2 class="text-fg text-3xl font-bold">Contact</h2>
-    <p class="text-fg-muted">SNSリンクなどの連絡先をここに表示する。</p>
-  </section>
+  <div id="gl-stage" class="gl-stage-hidden" style="position:fixed; inset:0; z-index:0;" aria-hidden="true">
+    <GLStage />
+  </div>
+  <div class="relative z-10" id="scroll-proxy">
+    <SectionHero />
+    <SectionAbout />
+    <SectionWorks works={featuredWorks} />
+    <SectionBlog posts={latestPosts} />
+    <SectionContact />
+  </div>
 </BaseLayout>
 
-<!-- TODO: issue #3 でスクロール連動演出を実装 -->
-
 <script>
-  import gsap from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-  gsap.registerPlugin(ScrollTrigger);
-
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  if (!prefersReducedMotion) {
-    const heroHeading = document.querySelector("#hero h1");
-    if (heroHeading) {
-      gsap.from(heroHeading, {
-        opacity: 0,
-        y: 24,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-    }
-  }
+  import { initGL } from "../scripts/gl/index";
+  void initGL();
 </script>
