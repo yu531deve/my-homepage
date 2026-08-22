@@ -48,7 +48,7 @@ const { works } = Astro.props;
             <p class="gl-text text-fg-muted mt-2 text-sm" data-gl-anchor={`works-${i}-summary`}>
               {work.data.summary}
             </p>
-            <ul class="mt-4 flex flex-wrap gap-2">
+            <ul class="gl-text mt-4 flex flex-wrap gap-2">
               {work.data.tech.map((tech) => (
                 <li class="bg-surface-2 text-fg-subtle rounded px-2 py-0.5 text-xs">{tech}</li>
               ))}
