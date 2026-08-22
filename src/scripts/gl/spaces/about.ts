@@ -2,6 +2,7 @@ import { BoxGeometry, Group, Mesh, ShaderMaterial, Vector2, DoubleSide } from "t
 import { makeText, disposeText } from "../text";
 import { CARD_VERTEX } from "../shaders/card.vert";
 import { CARD_FRAGMENT } from "../shaders/card.frag";
+import { SECTIONS } from "../camera-path";
 import type { FrameCtx, Space } from "../types";
 
 const FRESNEL_VERTEX = /* glsl */ `
@@ -17,6 +18,7 @@ void main() {
 
 const FRESNEL_FRAGMENT = /* glsl */ `
 precision highp float;
+uniform float uOpacity;
 varying vec3 vNormal;
 varying vec3 vViewDir;
 void main() {
@@ -24,7 +26,7 @@ void main() {
   vec3 base = vec3(0.039, 0.039, 0.043);
   vec3 accent = vec3(0.063, 0.725, 0.506);
   vec3 col = mix(base, accent, fresnel) * 1.4;
-  gl_FragColor = vec4(col, 0.9);
+  gl_FragColor = vec4(col, 0.9 * uOpacity);
 }
 `;
 
@@ -52,7 +54,11 @@ export function createAboutSpace(): Space {
     vertexShader: FRESNEL_VERTEX,
     fragmentShader: FRESNEL_FRAGMENT,
     transparent: true,
+    depthWrite: false,
     side: DoubleSide,
+    uniforms: {
+      uOpacity: { value: 0 },
+    },
   });
   const monolith = new Mesh(monolithGeo, monolithMat);
   monolith.position.set(-9, 0, -2);
@@ -72,9 +78,9 @@ export function createAboutSpace(): Space {
       uTime: { value: 0 },
       uHover: { value: 0 },
       uMouseUv: { value: new Vector2(0.5, 0.5) },
-      uAppear: { value: 1 },
+      uAppear: { value: 0 },
       uShear: { value: 0 },
-      uFade: { value: 1 },
+      uFade: { value: 0 },
       uEdgeStrength: { value: 0.5 },
     },
   });
@@ -103,6 +109,15 @@ export function createAboutSpace(): Space {
 
   group.add(heading, monolith, card, ...lineTexts);
 
+  // #17: このシーンオブジェクトは常時 group に存在するため、About 区間外
+  // (例えば Hero p=0 や Works p=0.45)でもカメラの視錐台に入ると緑色の破片
+  // として映り込んでいた。About 区間からの距離に応じてフェードし、区間外
+  // では完全に不可視(visible=false)にする。
+  const [aboutStart, aboutEnd] = SECTIONS.about;
+  const FADE_MARGIN = 0.04;
+  monolith.visible = false;
+  card.visible = false;
+
   function update(ctx: FrameCtx): void {
     monolith.rotation.y = -0.35 + ctx.localP * 0.5;
 
@@ -112,6 +127,25 @@ export function createAboutSpace(): Space {
     });
 
     cardMat.uniforms.uTime.value = ctx.t;
+
+    let appear = 0;
+    if (ctx.p >= aboutStart - FADE_MARGIN && ctx.p <= aboutEnd + FADE_MARGIN) {
+      if (ctx.p < aboutStart) {
+        appear = (ctx.p - (aboutStart - FADE_MARGIN)) / FADE_MARGIN;
+      } else if (ctx.p > aboutEnd) {
+        appear = 1 - (ctx.p - aboutEnd) / FADE_MARGIN;
+      } else {
+        appear = 1;
+      }
+    }
+    appear = Math.min(1, Math.max(0, appear));
+
+    monolithMat.uniforms.uOpacity.value = appear;
+    monolith.visible = appear > 0.001;
+
+    cardMat.uniforms.uAppear.value = appear;
+    cardMat.uniforms.uFade.value = appear;
+    card.visible = appear > 0.001;
   }
 
   function dispose(): void {

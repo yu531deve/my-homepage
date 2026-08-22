@@ -133,7 +133,12 @@ export function createWorksSpace(works: WorkItem[]): Space {
       mat.uniforms.uAppear.value = appear;
       mat.uniforms.uTime.value = ctx.t;
       mat.uniforms.uShear.value = ctx.velocity * 0.35;
-      mat.uniforms.uFade.value = 0.4 + 0.6 * appear;
+      // #17: 以前は 0.4 の下限があり、区間外(sub=0 で appear=0)でも
+      // カードが常に薄く描画され、uAppear=0 の破片形状(vert シェーダー参照)
+      // が Hero などから遠景の緑色グリッチとして映り込んでいた。
+      // appear=0 で完全不可視にする。
+      mat.uniforms.uFade.value = appear;
+      mesh.visible = appear > 0.001;
 
       mesh.rotation.y = POSITIONS[i].rotY + 0.03 * Math.sin(ctx.t * 0.4 + i);
       mesh.position.y = POSITIONS[i].pos[1] + 0.12 * Math.sin(ctx.t * 0.32 + i * 1.7);
