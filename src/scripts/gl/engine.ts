@@ -1,4 +1,12 @@
-import { Scene, PerspectiveCamera, FogExp2, Vector3, Clock, type ShaderMaterial } from "three";
+import {
+  Scene,
+  PerspectiveCamera,
+  FogExp2,
+  Vector3,
+  Clock,
+  Color,
+  type ShaderMaterial,
+} from "three";
 import gsap from "gsap";
 import { createRenderer, applySize } from "./renderer";
 import { createComposer, type ComposerHandle } from "./composer";
@@ -43,7 +51,9 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
   let settings: QualitySettings = settingsFor(quality);
 
   const scene = new Scene();
-  scene.fog = new FogExp2(0x0a0a0b, 0.018);
+  scene.background = new Color(0x0a0a0b);
+  const fog = new FogExp2(0x0a0a0b, 0.018);
+  scene.fog = fog;
 
   const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 300);
   const camPath = new CameraPath(settings.simplifiedCameraPath ? KEYS_SIMPLIFIED : KEYS);
@@ -193,10 +203,25 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
 
     hitSync.update();
 
+    // Contact 区間(§19): 区間進行に応じてビネットを強め・霧を濃くし、
+    // 黒を支配色として保ったまま発光要素(テキスト・オーブ)のコントラストを
+    // 相対的に引き立てる。
+    const contactP = Math.max(
+      0,
+      Math.min(1, (p - SECTIONS.contact[0]) / (SECTIONS.contact[1] - SECTIONS.contact[0])),
+    );
+    fog.density = 0.018 + contactP * 0.035;
+    if (composerHandle?.vignette) {
+      composerHandle.vignette.darkness = 0.62 + contactP * 0.3;
+    }
+    if (composerHandle) {
+      composerHandle.bloom.luminanceMaterial.threshold = 0.82 + contactP * 0.12;
+    }
+
     if (composerHandle) {
       composerHandle.bloom.intensity = Math.min(
         3.0,
-        1.45 + Math.abs(velocity) * 1.2 + Math.max(0, (p - 0.86) / 0.14) * 0.9,
+        1.45 + Math.abs(velocity) * 1.2 - contactP * 0.35,
       );
       if (composerHandle.chromaticAberration) {
         composerHandle.chromaticAberration.offset.x = Math.min(
