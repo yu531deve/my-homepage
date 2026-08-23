@@ -77,7 +77,10 @@ export function createBlogSpace(items: BlogItem[]): Space {
       const mat = mesh.material as ShaderMaterial;
       mat.uniforms.uTime.value = ctx.t;
       mat.uniforms.uAppear.value = local;
-      mat.uniforms.uFade.value = 0.3 + 0.7 * local;
+      // #17: 下限 0.3 のせいで区間外でも常に薄く描画され、uAppear=0 の
+      // 破片形状が遠景から緑色グリッチとして見えていた。appear=0 で不可視に。
+      mat.uniforms.uFade.value = local;
+      mesh.visible = local > 0.001;
     });
   }
 
