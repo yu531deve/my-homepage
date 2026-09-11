@@ -1,34 +1,10 @@
-import { BoxGeometry, Group, Mesh, ShaderMaterial, Vector2, DoubleSide } from "three";
+import { BoxGeometry, Group, Mesh, ShaderMaterial, Vector2, FrontSide } from "three";
+import type { Object3D } from "three";
 import { makeText, disposeText } from "../text";
 import { CARD_VERTEX } from "../shaders/card.vert";
 import { CARD_FRAGMENT } from "../shaders/card.frag";
-import { SECTIONS } from "../camera-path";
+import { SECTIONS, STATION_Y } from "../camera-path";
 import type { FrameCtx, Space } from "../types";
-
-const FRESNEL_VERTEX = /* glsl */ `
-varying vec3 vNormal;
-varying vec3 vViewDir;
-void main() {
-  vec4 worldPos = modelMatrix * vec4(position, 1.0);
-  vNormal = normalize(mat3(modelMatrix) * normal);
-  vViewDir = normalize(cameraPosition - worldPos.xyz);
-  gl_Position = projectionMatrix * viewMatrix * worldPos;
-}
-`;
-
-const FRESNEL_FRAGMENT = /* glsl */ `
-precision highp float;
-uniform float uOpacity;
-varying vec3 vNormal;
-varying vec3 vViewDir;
-void main() {
-  float fresnel = pow(1.0 - clamp(dot(vNormal, vViewDir), 0.0, 1.0), 3.0);
-  vec3 base = vec3(0.039, 0.039, 0.043);
-  vec3 accent = vec3(0.063, 0.725, 0.506);
-  vec3 col = mix(base, accent, fresnel) * 1.4;
-  gl_FragColor = vec4(col, 0.9 * uOpacity);
-}
-`;
 
 const LINES = [
   { text: "Webアプリケーションを中心に、", y: 1.6, z: 2, speed: 0.85 },
@@ -38,34 +14,19 @@ const LINES = [
 
 export function createAboutSpace(): Space {
   const group = new Group();
-  group.position.set(0, -6, -60);
+  group.position.set(0, STATION_Y.about, 0);
 
   const heading = makeText({
     text: "About",
     font: "bold",
     fontSize: 7,
-    position: [-2, 0, -6],
+    position: [0, 9.5, -10],
     outlineWidth: 0.015,
     fillOpacity: 0.06,
   });
 
-  const monolithGeo = new BoxGeometry(5.5, 9, 0.15);
-  const monolithMat = new ShaderMaterial({
-    vertexShader: FRESNEL_VERTEX,
-    fragmentShader: FRESNEL_FRAGMENT,
-    transparent: true,
-    depthWrite: false,
-    side: DoubleSide,
-    uniforms: {
-      uOpacity: { value: 0 },
-    },
-  });
-  const monolith = new Mesh(monolithGeo, monolithMat);
-  monolith.position.set(-9, 0, -2);
-  monolith.rotation.y = -0.35;
-
-  const cardW = 4.2;
-  const cardH = 1.3;
+  const cardW = 6.2;
+  const cardH = 1.9;
   const cardGeo = new BoxGeometry(cardW, cardH, 0.01).toNonIndexed();
   // Works と同じカードシェーダーを流用(平面として使う)
   const cardMat = new ShaderMaterial({
@@ -73,7 +34,7 @@ export function createAboutSpace(): Space {
     fragmentShader: CARD_FRAGMENT,
     transparent: true,
     depthWrite: false,
-    side: DoubleSide,
+    side: FrontSide,
     uniforms: {
       uTime: { value: 0 },
       uHover: { value: 0 },
@@ -85,12 +46,13 @@ export function createAboutSpace(): Space {
     },
   });
   const card = new Mesh(cardGeo, cardMat);
+  card.userData.flat = true;
   card.position.set(4.6, -1.4, 1.0);
 
   const cardTitle = makeText({
     text: "About",
     font: "bold",
-    fontSize: 0.32,
+    fontSize: 0.46,
     anchorX: "left",
     position: [-cardW / 2 + 0.4, 0.2, 0.02],
   });
@@ -107,7 +69,7 @@ export function createAboutSpace(): Space {
     }),
   );
 
-  group.add(heading, monolith, card, ...lineTexts);
+  group.add(heading, card, ...lineTexts);
 
   // #17: このシーンオブジェクトは常時 group に存在するため、About 区間外
   // (例えば Hero p=0 や Works p=0.45)でもカメラの視錐台に入ると緑色の破片
@@ -115,12 +77,9 @@ export function createAboutSpace(): Space {
   // では完全に不可視(visible=false)にする。
   const [aboutStart, aboutEnd] = SECTIONS.about;
   const FADE_MARGIN = 0.04;
-  monolith.visible = false;
   card.visible = false;
 
   function update(ctx: FrameCtx): void {
-    monolith.rotation.y = -0.35 + ctx.localP * 0.5;
-
     lineTexts.forEach((text, i) => {
       const speed = LINES[i].speed;
       text.position.x = -1.2 + 2.4 * ctx.localP * speed;
@@ -140,9 +99,6 @@ export function createAboutSpace(): Space {
     }
     appear = Math.min(1, Math.max(0, appear));
 
-    monolithMat.uniforms.uOpacity.value = appear;
-    monolith.visible = appear > 0.001;
-
     cardMat.uniforms.uAppear.value = appear;
     cardMat.uniforms.uFade.value = appear;
     card.visible = appear > 0.001;
@@ -152,11 +108,16 @@ export function createAboutSpace(): Space {
     disposeText(heading);
     disposeText(cardTitle);
     lineTexts.forEach(disposeText);
-    monolithGeo.dispose();
-    monolithMat.dispose();
     cardGeo.dispose();
     cardMat.dispose();
   }
 
-  return { group, update, dispose };
+  const anchors: Record<string, Object3D> = {
+    "about-card-title": card,
+  };
+  lineTexts.forEach((t, i) => {
+    anchors[`about-line-${i}`] = t;
+  });
+
+  return { group, anchors, update, dispose };
 }

@@ -3,15 +3,32 @@ import {
   PerspectiveCamera,
   FogExp2,
   Vector3,
+  Quaternion,
+  type Mesh,
   Clock,
   Color,
+  type Object3D,
   type ShaderMaterial,
 } from "three";
 import gsap from "gsap";
 import { createRenderer, applySize } from "./renderer";
 import { createComposer, type ComposerHandle } from "./composer";
 import { initScroll, type ScrollHandle } from "./scroll";
-import { CameraPath, KEYS, KEYS_SIMPLIFIED, SECTIONS, localP } from "./camera-path";
+import { CameraPath, SECTIONS, cameraY, localP } from "./camera-path";
+import { createSpine, type SpineHandle } from "./env/spine";
+
+/** カメラ前方これ未満に来た要素は非表示にする(単位: ワールド) */
+const BEHIND_MARGIN = 0.5;
+
+/** 画角の拡大率。カメラ位置を動かさずに引きの絵を作る */
+const FOV_SCALE = 1.0;
+const FOV_MAX = 82;
+
+/** 要素の外接球半径のこの倍率より近づいたら非表示(画面を覆うのを防ぐ) */
+const NEAR_CULL_RATIO = 0.9;
+
+/** セクションを表示しておく担当区間の前後マージン */
+const SECTION_VISIBLE_MARGIN = 0.06;
 import { preloadFonts } from "./text";
 import { createNebula, type NebulaHandle } from "./env/nebula";
 import { createDust, type DustHandle } from "./env/dust";
@@ -20,7 +37,7 @@ import { createAboutSpace } from "./spaces/about";
 import { createWorksSpace, type WorkItem } from "./spaces/works";
 import { createBlogSpace, type BlogItem } from "./spaces/blog";
 import { createContactSpace } from "./spaces/contact";
-import { HitSync } from "./hit-sync";
+import { HitSync, OverlaySync } from "./hit-sync";
 import {
   detectInitialQuality,
   settingsFor,
@@ -50,19 +67,25 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
   const initialQuality = quality;
   let settings: QualitySettings = settingsFor(quality);
 
+  // 縦長画面での画角補正(resize で更新するため、resize より前に置く)
+  let aspectFov = 1;
+
   const scene = new Scene();
   scene.background = new Color(0x0a0a0b);
   const fog = new FogExp2(0x0a0a0b, 0.018);
   scene.fog = fog;
 
   const camera = new PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 300);
-  const camPath = new CameraPath(settings.simplifiedCameraPath ? KEYS_SIMPLIFIED : KEYS);
+  const camPath = new CameraPath();
 
   const scrollHandle: ScrollHandle = initScroll(settings.parallax);
 
+  const spine: SpineHandle = createSpine(
+    quality === "low" ? "low" : quality === "mid" ? "mid" : "high",
+  );
   let nebula: NebulaHandle = createNebula(settings.octaves);
   let dust: DustHandle = createDust(settings.dustCount);
-  scene.add(nebula.mesh, dust.points);
+  scene.add(spine.group, nebula.mesh, dust.points);
 
   const spaces: Space[] = [
     createHeroSpace(),
@@ -80,6 +103,14 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
   const hitSync = new HitSync(camera);
   wireHitSync(hitSync, spaces);
 
+  // 日本語テキストの DOM オーバーレイ。各 space が公開する anchors に追従させる。
+  const overlaySync = new OverlaySync(camera);
+  for (const space of spaces) {
+    for (const [anchorId, object] of Object.entries(space.anchors ?? {})) {
+      overlaySync.register(anchorId, object);
+    }
+  }
+
   document.documentElement.classList.add("webgl-on");
 
   function resize(): void {
@@ -87,6 +118,8 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
     const h = window.innerHeight;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    // 縦長画面では横に収まりにくいので画角で補う
+    aspectFov = camera.aspect < 1.3 ? 1 + (1.3 - camera.aspect) * 0.35 : 1;
     const { w: rw, h: rh } = applySize(renderer!, w, h, settings);
     composerHandle?.setSize(rw, rh);
   }
@@ -98,6 +131,12 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
   const lookVec = new Vector3();
   const rightVec = new Vector3();
   const upVec = new Vector3(0, 1, 0);
+  const forwardVec = new Vector3();
+  const objWorldVec = new Vector3();
+  const normalVec = new Vector3();
+  const quatTmp = new Quaternion();
+  /** 通過判定で伏せた要素。次フレーム頭で戻し、各 space の可視制御を壊さない */
+  const culled: Object3D[] = [];
   let running = true;
   let contextLost = false;
 
@@ -114,7 +153,7 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
     nebula = createNebula(settings.octaves);
     dust.dispose();
     dust = createDust(settings.dustCount);
-    scene.add(nebula.mesh, dust.points);
+    scene.add(spine.group, nebula.mesh, dust.points);
     composerHandle?.dispose();
     composerHandle = settings.postprocessing
       ? createComposer(renderer!, scene, camera, settings.bloomOnly)
@@ -176,7 +215,7 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
 
     camera.position.copy(posVec);
     const speedFov = Math.min(8, Math.abs(velocity) * 6);
-    const targetFov = fov + speedFov;
+    const targetFov = Math.min(FOV_MAX, fov * FOV_SCALE * aspectFov + speedFov);
     if (camPath.shouldUpdateProjection(targetFov)) {
       camera.fov = targetFov;
       camera.updateProjectionMatrix();
@@ -184,8 +223,13 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
     camera.lookAt(lookVec);
     camera.rotateZ(roll + (settings.parallax ? mx * 0.02 : 0));
 
+    spine.update(dt, camera.position.y);
     nebula.update(dt, p, camera.position, 1.0 + Math.abs(velocity) * 2.0);
     dust.update(dt);
+
+    // 前フレームで通過扱いにした分を戻してから、各 space に可視制御させる
+    for (const obj of culled) obj.visible = true;
+    culled.length = 0;
 
     for (const space of spaces) {
       const range = sectionRangeFor(space, spaces);
@@ -201,7 +245,61 @@ export async function startEngine(config: EngineConfig): Promise<() => void> {
       });
     }
 
+    // カメラが通り過ぎた要素は裏側が映るだけなので描画から外す。
+    // (箱やリングは片面描画にしても背面から見えてしまうため、可視性で落とす)
+    camera.getWorldDirection(forwardVec);
+    for (const space of spaces) {
+      // 担当区間から離れたセクションは丸ごと隠す。
+      // 巨大な見出しなどが他セクションの背景に映り込むのを防ぐ。
+      const range = sectionRangeFor(space, spaces);
+      if (
+        range &&
+        (p < range[0] - SECTION_VISIBLE_MARGIN || p > range[1] + SECTION_VISIBLE_MARGIN)
+      ) {
+        if (space.group.visible) {
+          space.group.visible = false;
+          culled.push(space.group);
+        }
+        continue;
+      }
+
+      space.group.traverse((obj) => {
+        if (obj === space.group || !obj.visible) return;
+        obj.getWorldPosition(objWorldVec);
+        objWorldVec.sub(camera.position);
+        // カメラ後方(進行方向の逆)に回った時点で消す
+        if (objWorldVec.dot(forwardVec) < BEHIND_MARGIN) {
+          obj.visible = false;
+          culled.push(obj);
+          return;
+        }
+        // 至近距離で画面を覆ってしまう要素も落とす。カメラパスがカードの
+        // すぐ脇を通る箇所で、面が視界いっぱいに広がるのを防ぐ。
+        const mesh = obj as Mesh;
+        const geo = mesh.geometry;
+        if (geo) {
+          if (!geo.boundingSphere) geo.computeBoundingSphere();
+          const radius = geo.boundingSphere ? geo.boundingSphere.radius : 0;
+          if (radius > 0 && objWorldVec.length() < radius * NEAR_CULL_RATIO) {
+            obj.visible = false;
+            culled.push(obj);
+            return;
+          }
+        }
+        // 平面要素(テキスト/カード)は裏を向いたら消す。troika のテキストは
+        // material.side が効かないため、面の向きで判定する。
+        if (obj.userData.flat) {
+          normalVec.set(0, 0, 1).applyQuaternion(obj.getWorldQuaternion(quatTmp));
+          if (normalVec.dot(objWorldVec) > 0) {
+            obj.visible = false;
+            culled.push(obj);
+          }
+        }
+      });
+    }
+
     hitSync.update();
+    overlaySync.update();
 
     // Contact 区間(§19): 区間進行に応じてビネットを強め・霧を濃くし、
     // 黒を支配色として保ったまま発光要素(テキスト・オーブ)のコントラストを
@@ -369,12 +467,12 @@ function wireHitSync(hitSync: HitSync, spaces: Space[]): void {
       (c as never as { geometry?: { type: string } }).geometry?.type === "BoxGeometry" &&
       c.position.x > 0,
   );
-  if (aboutCard) hitSync.register("about-card", aboutCard, { w: 4.2, h: 1.3 });
+  if (aboutCard) hitSync.register("about-card", aboutCard, { w: 6.2, h: 1.9 });
 
   const worksCards = works.group.children.filter((c) => c.type === "Mesh");
   worksCards.forEach((mesh, i) => {
     const id = i < 3 ? `works-${i}` : "works-more";
-    const size = i < 3 ? { w: 9.0, h: 5.4 } : { w: 7.0, h: 2.4 };
+    const size = i < 3 ? { w: 13.0, h: 7.8 } : { w: 10.0, h: 3.4 };
     const mat = (mesh as unknown as { material?: ShaderMaterial }).material;
     hitSync.register(id, mesh, size, mat?.uniforms?.uHover, (u, v) => {
       if (mat?.uniforms?.uMouseUv) mat.uniforms.uMouseUv.value.set(u, v);
@@ -384,7 +482,7 @@ function wireHitSync(hitSync: HitSync, spaces: Space[]): void {
   const blogCards = blog.group.children.filter((c) => c.type === "Mesh");
   blogCards.forEach((mesh, i) => {
     const mat = (mesh as unknown as { material?: ShaderMaterial }).material;
-    hitSync.register(`blog-${i}`, mesh, { w: 5.2, h: 6.4 }, mat?.uniforms?.uHover, (u, v) => {
+    hitSync.register(`blog-${i}`, mesh, { w: 7.6, h: 9.2 }, mat?.uniforms?.uHover, (u, v) => {
       if (mat?.uniforms?.uMouseUv) mat.uniforms.uMouseUv.value.set(u, v);
     });
   });

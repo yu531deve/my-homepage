@@ -1,4 +1,5 @@
 ---
+import { withBase } from "../../consts";
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
@@ -10,7 +11,7 @@ const { works } = Astro.props;
 
 <section
   id="works"
-  class="hit-layer relative min-h-screen overflow-hidden px-6 py-24 md:h-screen md:px-0 md:py-0"
+  class="hit-layer relative min-h-screen overflow-hidden px-6 py-24 md:h-[170vh] md:px-0 md:py-0"
 >
   <div
     class="works-inner scene-inner relative flex h-full w-full flex-col gap-6 md:block"
@@ -31,7 +32,7 @@ const { works } = Astro.props;
         works.map((work, i) => (
           <a
             class="work-card gl-hit border-border bg-surface/60 hover:border-accent relative w-full rounded-lg border p-6 backdrop-blur-sm transition-colors duration-[var(--duration-fast)] md:absolute md:w-[min(60vw,44rem)]"
-            href={`/works/${work.id}`}
+            href={withBase(`/works/${work.id}`)}
             data-index={i}
             data-gl-hit={`works-${i}`}
           >
@@ -61,7 +62,7 @@ const { works } = Astro.props;
       }
       <a
         class="work-card works-more gl-hit gl-text border-border bg-surface/60 hover:border-accent relative flex w-full items-center justify-center rounded-lg border p-6 text-center backdrop-blur-sm transition-colors duration-[var(--duration-fast)] md:absolute md:w-[min(60vw,44rem)]"
-        href="/works"
+        href={withBase("/works")}
         data-index={works.length}
         data-gl-hit="works-more"
         data-jp

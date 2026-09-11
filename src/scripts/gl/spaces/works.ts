@@ -1,3 +1,4 @@
+import { STATION_Y } from "../camera-path";
 import { Group, Mesh } from "three";
 import { makeText, disposeText } from "../text";
 import { createCardMaterial, createCardGeometry } from "../shaders/card";
@@ -11,10 +12,11 @@ export interface WorkItem {
 }
 
 const POSITIONS: Array<{ pos: [number, number, number]; rotY: number; w: number; h: number }> = [
-  { pos: [-7.5, 1.2, 22], rotY: 0.42, w: 9.0, h: 5.4 },
-  { pos: [7.8, -1.6, 2], rotY: -0.4, w: 9.0, h: 5.4 },
-  { pos: [-8.2, 2.0, -18], rotY: 0.38, w: 9.0, h: 5.4 },
-  { pos: [0.0, -0.4, -40], rotY: 0, w: 7.0, h: 2.4 },
+  // v4: 背骨に沿って左右交互に吊り下げる
+  { pos: [-11.0, 15.0, 0], rotY: 0.3, w: 13.0, h: 7.8 },
+  { pos: [11.0, 2.5, 0], rotY: -0.3, w: 13.0, h: 7.8 },
+  { pos: [-11.0, -10.0, 0], rotY: 0.3, w: 13.0, h: 7.8 },
+  { pos: [0.0, -23.0, 0], rotY: 0, w: 10.0, h: 3.4 },
 ];
 
 const SUB_RANGES: Array<[number, number]> = [
@@ -30,13 +32,13 @@ function easeOutCubic(t: number): number {
 
 export function createWorksSpace(works: WorkItem[]): Space {
   const group = new Group();
-  group.position.set(0, 0, -150);
+  group.position.set(0, STATION_Y.works, 0);
 
   const heading = makeText({
     text: "WORKS",
     font: "bold",
-    fontSize: 18,
-    position: [0, 0, -34],
+    fontSize: 13,
+    position: [0, 25, -34],
     outlineWidth: 0.02,
     fillOpacity: 0,
     outlineColor: 0xf4f4f5,
@@ -62,13 +64,14 @@ export function createWorksSpace(works: WorkItem[]): Space {
     const geo = createCardGeometry(def.w, def.h);
     const mat = createCardMaterial(1);
     const mesh = new Mesh(geo, mat);
+    mesh.userData.flat = true;
     mesh.position.set(...def.pos);
     mesh.rotation.y = def.rotY;
 
     const title = makeText({
       text: item.title,
       font: "bold",
-      fontSize: 0.62,
+      fontSize: 0.9,
       anchorX: "left",
       position: [-def.w / 2 + 0.5, def.h / 2 - 0.9, 0.06],
     });
@@ -77,7 +80,7 @@ export function createWorksSpace(works: WorkItem[]): Space {
     if (item.summary) {
       const summary = makeText({
         text: item.summary.length > 60 ? "" : item.summary,
-        fontSize: 0.3,
+        fontSize: 0.44,
         color: 0xa1a1aa,
         anchorX: "left",
         maxWidth: def.w - 1.0,
@@ -93,7 +96,7 @@ export function createWorksSpace(works: WorkItem[]): Space {
     if (item.tech) {
       const tech = makeText({
         text: item.tech,
-        fontSize: 0.24,
+        fontSize: 0.34,
         color: 0x34d399,
         anchorX: "left",
         anchorY: "bottom",
@@ -107,7 +110,7 @@ export function createWorksSpace(works: WorkItem[]): Space {
       const idx = makeText({
         text: item.index,
         font: "bold",
-        fontSize: 2.4,
+        fontSize: 3.4,
         anchorX: "left",
         position: [-def.w / 2 + 0.8, -def.h / 2 + 1.4, 0.03],
       });

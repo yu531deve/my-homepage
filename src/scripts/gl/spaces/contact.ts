@@ -1,4 +1,5 @@
 import { Group, IcosahedronGeometry, Mesh, MeshBasicMaterial } from "three";
+import { STATION_Y } from "../camera-path";
 import { makeText, disposeText } from "../text";
 import type { FrameCtx, Space } from "../types";
 
@@ -7,7 +8,7 @@ const ORB_LABELS = ["GitHub", "X", "Contact"];
 
 export function createContactSpace(): Space {
   const group = new Group();
-  group.position.set(0, 0, -340);
+  group.position.set(0, STATION_Y.contact, 0);
 
   const heading = makeText({
     text: "LET'S TALK",

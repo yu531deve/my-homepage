@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yu531deve.github.io/my-homepage/sitemap-index.xml

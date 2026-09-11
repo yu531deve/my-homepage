@@ -1,7 +1,8 @@
-import { AdditiveBlending, Group, Mesh, MeshBasicMaterial, TorusGeometry } from "three";
+import { AdditiveBlending, Group, Mesh, MeshBasicMaterial, Object3D, TorusGeometry } from "three";
 import gsap from "gsap";
 import type { Text } from "troika-three-text";
 import { makeText, disposeText } from "../text";
+import { STATION_Y } from "../camera-path";
 import type { FrameCtx, Space } from "../types";
 
 const RING_DEFS = [
@@ -12,35 +13,16 @@ const RING_DEFS = [
 
 export function createHeroSpace(): Space {
   const group = new Group();
-  group.position.set(0, 0, 0);
+  group.position.set(0, STATION_Y.hero, 0);
 
-  const yudai = makeText({
-    text: "YUDAI",
+  // 重ね置きはやめ、一語だけを置く
+  const title = makeText({
+    text: "PORTFOLIO",
     font: "bold",
-    fontSize: 4.2,
-    letterSpacing: -0.04,
-    lineHeight: 0.85,
-    position: [0, 1.9, 0],
+    fontSize: 3.4,
+    letterSpacing: -0.03,
+    position: [0, 0.6, 0],
   });
-  const harada = makeText({
-    text: "HARADA",
-    font: "bold",
-    fontSize: 4.2,
-    letterSpacing: -0.04,
-    lineHeight: 0.85,
-    position: [0, -1.9, -1.2],
-  });
-  const back = makeText({
-    text: "PORTFOLIO 2026",
-    fontSize: 9,
-    position: [0, 0, -14],
-    color: 0xf4f4f5,
-    outlineWidth: 0.02,
-    outlineColor: 0xf4f4f5,
-    fillOpacity: 0,
-  });
-  (back.material as MeshBasicMaterial).transparent = true;
-  back.material.opacity = 0.055;
 
   const scroll = makeText({
     text: "SCROLL",
@@ -66,9 +48,12 @@ export function createHeroSpace(): Space {
     return mesh;
   });
 
-  group.add(yudai, harada, back, scroll);
+  // 日本語一行(DOM オーバーレイ)の追従先
+  const subAnchor = new Object3D();
+  subAnchor.position.set(0, -3.4, 1);
+  group.add(title, scroll, subAnchor);
 
-  const revealTargets = [yudai, harada, scroll] as const;
+  const revealTargets = [title, scroll] as const;
   revealTargets.forEach((text, i) => {
     const startY = text.position.y;
     text.position.y = startY + 0.6;
@@ -103,9 +88,7 @@ export function createHeroSpace(): Space {
   }
 
   function dispose(): void {
-    disposeText(yudai as unknown as Text);
-    disposeText(harada as unknown as Text);
-    disposeText(back as unknown as Text);
+    disposeText(title as unknown as Text);
     disposeText(scroll as unknown as Text);
     rings.forEach((r) => {
       r.geometry.dispose();
@@ -113,5 +96,5 @@ export function createHeroSpace(): Space {
     });
   }
 
-  return { group, update, dispose };
+  return { group, anchors: { "hero-sub": subAnchor }, update, dispose };
 }
