@@ -1,4 +1,4 @@
-import type { Group } from "three";
+import type { Group, Object3D } from "three";
 
 export interface FrameCtx {
   p: number;
@@ -12,6 +12,8 @@ export interface FrameCtx {
 
 export interface Space {
   group: Group;
+  /** 日本語 DOM オーバーレイの追従先。anchorId -> 3D オブジェクト */
+  anchors?: Record<string, Object3D>;
   update(ctx: FrameCtx): void;
   dispose(): void;
 }

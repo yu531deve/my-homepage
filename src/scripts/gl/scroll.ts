@@ -1,6 +1,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { initSmoothScroll } from "../smooth-scroll";
+import { getLenis, initSmoothScroll } from "../smooth-scroll";
+import { DWELL_ANCHORS, dwellRemap } from "./camera-path";
 
 export interface ScrollState {
   p: number;
@@ -38,13 +39,52 @@ export function initScroll(parallax: boolean): ScrollHandle {
   let lastP = 0;
   let lastTime = performance.now();
 
+  // スクロールが止まったら最寄りのセクションへ吸着させる。
+  // 「どこで止まればいいか分からない」を、実際に止めることで解消する(#20)。
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let snapTimer = 0;
+  let snapping = false;
+
+  function snapToNearest(): void {
+    if (reducedMotion || snapping) return;
+    const start = st.start;
+    const end = st.end;
+    const span = end - start;
+    if (span <= 0) return;
+
+    const progress = (window.scrollY - start) / span;
+    let nearest = DWELL_ANCHORS[0];
+    for (const a of DWELL_ANCHORS) {
+      if (Math.abs(a - progress) < Math.abs(nearest - progress)) nearest = a;
+    }
+    // 既にほぼ合っているなら何もしない(微小な揺り戻しを防ぐ)
+    if (Math.abs(nearest - progress) < 0.004) return;
+
+    const targetY = start + nearest * span;
+    snapping = true;
+    const done = (): void => {
+      snapping = false;
+    };
+    const lenis = getLenis();
+    if (lenis) {
+      lenis.scrollTo(targetY, { duration: 0.7, onComplete: done });
+    } else {
+      window.scrollTo({ top: targetY, behavior: "smooth" });
+      window.setTimeout(done, 700);
+    }
+  }
+
   const st = ScrollTrigger.create({
     trigger: "#scroll-proxy",
     start: "top top",
     end: "bottom bottom",
     scrub: 1.2,
     onUpdate: (self) => {
-      state.pTarget = self.progress;
+      // セクション中心で滞留するカーブに変換してから使う
+      state.pTarget = dwellRemap(self.progress);
+      // 入力が止まってから一定時間後にスナップ
+      window.clearTimeout(snapTimer);
+      snapTimer = window.setTimeout(snapToNearest, 220);
     },
   });
 
@@ -70,6 +110,7 @@ export function initScroll(parallax: boolean): ScrollHandle {
   }
 
   function destroy(): void {
+    window.clearTimeout(snapTimer);
     st.kill();
     window.removeEventListener("mousemove", onMouseMove);
   }

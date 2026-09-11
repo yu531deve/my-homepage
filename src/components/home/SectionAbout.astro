@@ -1,8 +1,9 @@
 ---
+import { withBase } from "../../consts";
 import Card from "./Card.astro";
 ---
 
-<section id="about" class="hit-layer relative min-h-screen overflow-hidden px-6 md:h-screen">
+<section id="about" class="hit-layer relative min-h-screen overflow-hidden px-6 md:h-[150vh]">
   <div class="about-inner scene-inner relative mx-auto flex h-full w-full max-w-6xl items-center">
     <h2
       class="about-heading gl-text text-fg pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 text-[clamp(5rem,14vw,13rem)] leading-none font-bold"
@@ -22,7 +23,7 @@ import Card from "./Card.astro";
           >日々の学びや制作の記録もこのサイトに残しています。</span
         >
       </p>
-      <Card href="/about" class="about-card gl-hit" data-gl-hit="about-card">
+      <Card href={withBase("/about")} class="about-card gl-hit" data-gl-hit="about-card">
         <div class="flex items-center justify-between">
           <div>
             <p

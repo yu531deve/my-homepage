@@ -1,3 +1,13 @@
+/**
+ * GitHub Pages のプロジェクトページはサブパス(/my-homepage)配下に公開されるため、
+ * サイト内リンクと public/ のアセットは必ずこの関数を通す。
+ * 開発時は BASE_URL が "/" なのでそのまま動く。
+ */
+export function withBase(path: string): string {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 export const SITE_TITLE = "Yudai Harada" as const;
 export const SITE_DESCRIPTION = "Yudai Harada のポートフォリオ兼ブログ。" as const;
 
@@ -7,10 +17,10 @@ export type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: "Works", href: "/works" },
-  { label: "About", href: "/about" },
-  { label: "Blog", href: "/blog" },
-  { label: "Contact", href: "/contact" },
+  { label: "Works", href: withBase("/works") },
+  { label: "About", href: withBase("/about") },
+  { label: "Blog", href: withBase("/blog") },
+  { label: "Contact", href: withBase("/contact") },
 ];
 
 export type SocialLink = {

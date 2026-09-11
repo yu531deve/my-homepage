@@ -1,4 +1,4 @@
-import { DoubleSide, PlaneGeometry, ShaderMaterial, Vector2 } from "three";
+import { FrontSide, PlaneGeometry, ShaderMaterial, Vector2 } from "three";
 import { CARD_VERTEX } from "./card.vert";
 import { CARD_FRAGMENT } from "./card.frag";
 
@@ -13,7 +13,7 @@ export function createCardMaterial(edgeStrength = 1): ShaderMaterial {
     fragmentShader: CARD_FRAGMENT,
     transparent: true,
     depthWrite: false,
-    side: DoubleSide,
+    side: FrontSide,
     uniforms: {
       uTime: { value: 0 },
       uHover: { value: 0 },

@@ -1,5 +1,5 @@
 ---
-import { SOCIAL_LINKS } from "../consts";
+import { SOCIAL_LINKS, withBase } from "../consts";
 
 const year = new Date().getFullYear();
 ---
@@ -22,7 +22,7 @@ const year = new Date().getFullYear();
           </a>
         ))
       }
-      <a href="/rss.xml" class="hover:text-fg transition-colors">RSS</a>
+      <a href={withBase("/rss.xml")} class="hover:text-fg transition-colors">RSS</a>
     </div>
   </div>
 </footer>

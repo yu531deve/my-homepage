@@ -1,7 +1,8 @@
+import { FrontSide } from "three";
 import { Text, preloadFont } from "troika-three-text";
 
-const REGULAR = "/fonts/Inter-Regular.ttf";
-const BOLD = "/fonts/Inter-Bold.ttf";
+const REGULAR = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/fonts/Inter-Regular.ttf`;
+const BOLD = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/fonts/Inter-Bold.ttf`;
 
 const LATIN_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ./·'-→";
 
@@ -52,6 +53,10 @@ export function makeText(opts: TextOptions): Text {
   if (opts.outlineBlur !== undefined) t.outlineBlur = opts.outlineBlur;
   if (opts.fillOpacity !== undefined) t.fillOpacity = opts.fillOpacity;
   t.material.transparent = true;
+  // カメラが通り過ぎた後に文字の裏側が見えないよう、表面だけ描画する
+  t.material.side = FrontSide;
+  // 平面要素は裏を向いた時点で engine 側が非表示にする(troika は side 指定が効かない)
+  t.userData.flat = true;
   t.sync();
   return t;
 }

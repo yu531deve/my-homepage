@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../consts";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -18,7 +19,7 @@ const { Content } = await render(post);
   publishedAt={post.data.date}
 >
   <div class="mx-auto max-w-3xl px-6 py-24">
-    <a href="/blog" class="text-fg-subtle hover:text-accent text-sm">← Blog</a>
+    <a href={withBase("/blog")} class="text-fg-subtle hover:text-accent text-sm">← Blog</a>
 
     <header class="mt-6">
       {post.data.draft && <p class="text-accent-dim text-xs">DRAFT</p>}
